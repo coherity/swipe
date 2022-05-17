@@ -21,17 +21,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SwipeAdapter extends BaseAdapter {
     private Context context;
-    private List<Article> list;
+    private ArrayList<Article> list;
     private TextView textTitle;
     private TextView textAuthor;
     private TextView textDescription;
     private Button butt;
 
-    public SwipeAdapter(Context context, List<Article> list) {
+    public SwipeAdapter(Context context, ArrayList<Article> list) {
         this.context = context;
         this.list = list;
     }

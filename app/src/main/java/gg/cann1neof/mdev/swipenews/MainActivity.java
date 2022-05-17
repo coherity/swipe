@@ -20,19 +20,18 @@ import com.kwabenaberko.newsapilib.models.response.ArticleResponse;
 import com.yalantis.library.Koloda;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.kwabenaberko.newsapilib.NewsApiClient;
 
 public class MainActivity extends AppCompatActivity {
     private SwipeAdapter adapter;
-    private List<Article> articleList;
+    private ArrayList<Article> articleList;
     private NewsApiClient newsApiClient;
     Koloda koloda;
     MaterialToolbar topAppBar;
-    SharedPreferences sharedPreferences;
     final String SAVED_TEXT = "gg.cann1neof.mdev.swipenews.ClientSources2";
-    Instant instant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         topAppBar = (MaterialToolbar) findViewById(R.id.topAppBar);
         koloda = (Koloda) findViewById(R.id.koloda);
 
+        articleList = new ArrayList<Article>();
+
+        adapter = new SwipeAdapter(this, articleList);
         koloda.setAdapter(adapter);
         koloda.setKolodaListener(new MyKolodaListener(MainActivity.this, articleList));
 
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 fetchNews();
             }
         });
+
         topAppBar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void fetchNews(){
         String domains = getSources(SAVED_TEXT, this);
-
         if(domains != null){
             getLatestNews(domains);
         } else {
@@ -87,10 +89,13 @@ public class MainActivity extends AppCompatActivity {
                 new NewsApiClient.ArticlesResponseCallback() {
                     @Override
                     public void onSuccess(ArticleResponse response) {
-                        articleList = response.getArticles();
-                        adapter = new SwipeAdapter(MainActivity.this, articleList);
-                        koloda.setAdapter(adapter);
-                        koloda.setKolodaListener(new MyKolodaListener(MainActivity.this, articleList));
+                        if(articleList != null){
+                            articleList.clear();
+                            adapter.notifyDataSetChanged();
+                            koloda.reloadAdapterData();
+                            articleList.addAll(response.getArticles());
+                            adapter.notifyDataSetChanged();
+                        }
                     }
 
                     @Override
@@ -109,11 +114,15 @@ public class MainActivity extends AppCompatActivity {
                 new NewsApiClient.ArticlesResponseCallback() {
                     @Override
                     public void onSuccess(ArticleResponse response) {
-                        articleList = response.getArticles();
-                        adapter = new SwipeAdapter(MainActivity.this, articleList);
-                        koloda.setAdapter(adapter);
-                        koloda.setKolodaListener(new MyKolodaListener(MainActivity.this, articleList));
-                        if(articleList == null || articleList.size() == 0){
+                        if(articleList != null){
+                            articleList.clear();
+                            adapter.notifyDataSetChanged();
+                            koloda.reloadAdapterData();
+                            articleList.addAll(response.getArticles());
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        else if(articleList == null || articleList.size() == 0){
                             getTopHeadlinesNews();
                         }
                     }
@@ -131,7 +140,3 @@ public class MainActivity extends AppCompatActivity {
         return preferences.getString(key, null);
     }
 }
-
-// kommersant.ru
-// fontanka.ru
-// investing.com
